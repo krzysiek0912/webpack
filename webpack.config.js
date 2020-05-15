@@ -1,6 +1,7 @@
 const path = require("path");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const CopyPlugin = require("copy-webpack-plugin");
 
 module.exports = function (env, argv) {
     var prod = env !== undefined && env.production === true;
@@ -13,7 +14,7 @@ module.exports = function (env, argv) {
             app: "./src/js/index.js",
         },
         output: {
-            filename: prod ? "[name].[chunkhash].js" : "[name].js",
+            filename: prod ? "assets/js/[name].[chunkhash].js" : "assets/js/[name].js",
             path: path.resolve(__dirname, "dist"),
         },
         devtool: "source-map", // any "source-map"-like devtool is possible
@@ -35,6 +36,16 @@ module.exports = function (env, argv) {
                         "sass-loader",
                     ],
                 },
+                {
+                    test: /\.(png|jpg|gif|svg|eot|ttf|woff|woff2)$/,
+                    use: {
+                        loader: "url-loader",
+                        options: {
+                            limit: 10000,
+                            name: "[name].[ext]",
+                        },
+                    },
+                },
             ],
         },
         plugins: [
@@ -44,6 +55,9 @@ module.exports = function (env, argv) {
             }),
             new HtmlWebpackPlugin({
                 template: "./src/index.html",
+            }),
+            new CopyPlugin({
+                patterns: [{ from: "src/assets/img", to: "assets/img" }],
             }),
         ],
     };
